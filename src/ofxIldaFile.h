@@ -438,7 +438,7 @@ namespace ofx{
                 std::shared_ptr<ilda_section_base> pre_frame_ptr(new ilda_section<FORMAT::Coordinates2DwTrueColor>());
                 {
                     auto& pre_frame = *(ilda_section<FORMAT::Coordinates2DwTrueColor>*)pre_frame_ptr.get();
-                    pre_frame.format = FORMAT::Coordinates2D;
+                    pre_frame.format = FORMAT::Coordinates2DwTrueColor;
                     pre_frame.name = frame_name;
                     pre_frame.company_name = company_name;
                     pre_frame.number_of_records = 1;
@@ -454,24 +454,34 @@ namespace ofx{
                 for(uint16_t f = 0 ; f < total_frame ; ++f){
                     std::shared_ptr<ilda_section_base> current_frame_ptr(new ilda_section<FORMAT::Coordinates2DwTrueColor>(*(ilda_section<FORMAT::Coordinates2DwTrueColor>*)pre_frame_ptr.get()));
                     if(frame_buffer.count(f)){
-                        const auto& ilda_frame = frame_buffer.at(f);
+                        const auto& ilda_frame = frame_buffer[f];
                         auto& current_frame = *(ilda_section<FORMAT::Coordinates2DwTrueColor>*)current_frame_ptr.get();
-                        current_frame.number_of_records = ilda_frame.size();
                         current_frame.frame_number = f;
                         current_frame.projector_number = 0;
                         current_frame.none = 0;
-                        current_frame.data.resize(ilda_frame.size());
-                        for(uint16_t i = 0 ; i < current_frame.number_of_records ; ++i){
-                            auto& section_frame_data = current_frame.data[i];
-                            auto& ilda_point = ilda_frame[i];
-                            std::get<0>(section_frame_data).set(ilda_point.x, ilda_point.y);
-                            std::get<1>(section_frame_data) = 0b00000000;
-                            float r,g,b;
-                            r = 1.0 * ilda_point.r / kIldaMaxIntensity * 255.0;
-                            g = 1.0 * ilda_point.g / kIldaMaxIntensity * 255.0;
-                            b = 1.0 * ilda_point.b / kIldaMaxIntensity * 255.0;
-                            std::get<2>(section_frame_data).set(r,g,b,255);
+                        if(ilda_frame.size()){
+                            current_frame.number_of_records = ilda_frame.size();
+                            current_frame.data.resize(ilda_frame.size());
+                            
+                            for(uint16_t i = 0 ; i < current_frame.number_of_records ; ++i){
+                                auto& section_frame_data = current_frame.data[i];
+                                auto& ilda_point = ilda_frame[i];
+                                std::get<0>(section_frame_data).set(ilda_point.x, ilda_point.y);
+                                std::get<1>(section_frame_data) = 0b00000000;
+                                float r,g,b;
+                                r = 1.0 * ilda_point.r / kIldaMaxIntensity * 255.0;
+                                g = 1.0 * ilda_point.g / kIldaMaxIntensity * 255.0;
+                                b = 1.0 * ilda_point.b / kIldaMaxIntensity * 255.0;
+                                std::get<2>(section_frame_data).set(r,g,b,255);
+                            }
+                        }else{
+                            current_frame.number_of_records = 1;
+                            current_frame.data.resize(1);
+                            std::get<0>(current_frame.data[0]).set(0, 0);
+                            std::get<1>(current_frame.data[0]) = 0b01000000;
+                            std::get<2>(current_frame.data[0]).set(0,0,0,255);
                         }
+                        
                     }else{
                         auto& current_frame = *(ilda_section<FORMAT::Coordinates2DwTrueColor>*)current_frame_ptr.get();
                         current_frame.frame_number = f;
@@ -485,6 +495,8 @@ namespace ofx{
                     current_frame.number_of_records = 0;
                     current_frame.frame_number = total_frame;
                     current_frame.data.resize(0);
+                    sections.push_back(current_frame_ptr);
+
   
                 }
             }
