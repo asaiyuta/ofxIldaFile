@@ -421,7 +421,7 @@ namespace ofx{
         };
         
 #ifdef OFX_ILDA_CONVERT
-        struct section_converter{
+        struct points_buffer{
             void set_frame(uint16_t frame_number, const std::vector<ofxIlda::Point>& points){
                 if(frame_buffer.count(frame_number)){
                     frame_buffer[frame_number].resize(points.size());
@@ -517,3 +517,9 @@ namespace ofx{
         
     };
 };
+
+using ofxIldaFile = ofx::IldaFile::ilda_file;
+using ofxIldaPointBuffer = ofx::IldaFile::points_buffer;
+
+
+
