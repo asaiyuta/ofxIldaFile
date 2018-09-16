@@ -244,9 +244,9 @@ namespace ofx{
                     pos_buf[2] = pos.z;
                     pos_buf[2] = util::reverse_16b(pos_buf[2]);
 
-                    col_buf[0] = color.r;
+                    col_buf[0] = color.b;
                     col_buf[1] = color.g;
-                    col_buf[2] = color.b;
+                    col_buf[2] = color.r;
                     
                     ofs.write((char*)&pos_buf, 6);
                     ofs.write((char*)&status, 1);
@@ -269,9 +269,9 @@ namespace ofx{
                     pos_buf[1] = pos.y;
                     pos_buf[1] = util::reverse_16b(pos_buf[1]);
                     
-                    col_buf[0] = color.r;
+                    col_buf[0] = color.b;
                     col_buf[1] = color.g;
-                    col_buf[2] = color.b;
+                    col_buf[2] = color.r;
                     
                     ofs.write((char*)&pos_buf, 4);
                     ofs.write((char*)&status, 1);
